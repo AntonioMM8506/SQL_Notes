@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres
+    restart: always
+    container_name: postgres_sql
+    #hostname: myhost
+    ports:
+      - 5433:5432
+    volumes:
+      - .ops/mysql/dvdrental:/docker-entrypoint-initdb.d
+      - .ops/mysql/dvdrental/restore.sql:/docker-entrypoint-initdb.d/init.sql
+      - my_db:/var/lib/postgresql/
+    environment:
+      - DATABASE_HOST=127.0.0.1
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=dvdrental
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  my_db:

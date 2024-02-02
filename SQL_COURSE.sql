@@ -1,3 +1,4 @@
+-- Active: 1706752179522@@127.0.0.1@5432@dvdrental
 -- Udemy Course 
 -- The Complete SQL Bootcamp: Go from Zero to Hero
 
@@ -176,7 +177,7 @@ SELECT customer_id, SUM(amount) FROM payment WHERE staff_id=2 GROUP BY customer_
 SELECT COUNT(*) FROM film WHERE title LIKE 'J%';
 
 
--- ......................................................................................
+-- ...................................................................................................................................................................
 -- JOINS
 -- *** NOTE ***
 -- JOINS allow you to combine multiple tables
@@ -257,7 +258,7 @@ SELECT film.title, actor.first_name, actor.last_name FROM film INNER JOIN film_a
 INNER JOIN actor ON actor.actor_id = film_actor.actor_id WHERE actor.first_name='Nick' AND actor.last_name='Wahlberg';
 
 
--- ......................................................................................
+-- ...................................................................................................................................................................
 -- ADVANCED COMMANDS
 
 
@@ -298,8 +299,101 @@ SELECT COUNT(TO_CHAR(payment_date, 'FMDay')) FROM payment GROUP BY TO_CHAR(payme
 SELECT COUNT(TO_CHAR(payment_date, 'FMDay')) FROM payment WHERE EXTRACT(DOW FROM payment_date)=1 GROUP BY TO_CHAR(payment_date, 'FMDay');
 
 
+-- BASIC use of MATHEMATICAL FUNCTIONS
+-- SQL accepts a variery of mathematical operations, such as arithmetical operations to even trigonometry
+SELECT ROUND(rental_rate/replacement_cost, 4) * 100 AS percent_cost FROM film;
 
 
+-- BASIC user of STRING FUNCTIONS AND OPERATIONS
+-- PostgreSQL also provides a variey of string functions and operators that allow you to edit, combine, 
+-- and alter text data COLUMNS
+SELECT LENGTH(first_name) FROM customer; 
+-- || => concatenates a string
+SELECT first_name || ' ' || last_name AS full_name FROM customer;
+SELECT UPPER(first_name) FROM customer;
+-- LEFT( string, number) => takes the number of indicated characters from left to right.
+SELECT LOWER(LEFT(first_name, 3)) || LOWER(LEFT(last_name, 3)) || '@gmail.com' FROM customer;
+
+
+-- BASIC use of SUBQUERY
+-- A subquery allows you to construct complex queries, essentially performing a query on the results of another query.
+-- The syntax is straight forward and involves 2 SELECT statements.
+SELECT title, rental_rate FROM film WHERE rental_rate > (SELECT AVG(rental_rate) FROM film);
+-- Example of using a more complex subQuery, using a Join query as a Subquery;
+SELECT * FROM inventory; -- invetory_id
+SELECT * FROM rental; -- inentory_id, film_id
+SELECT film_id, title FROM film WHERE film_id IN 
+	(SELECT inventory.film_id FROM rental INNER JOIN inventory ON inventory.inventory_id = rental.inventory_id 
+	WHERE rental.return_date BETWEEN '2005-05-29' AND '2005-05-30');
+-- The EXISTS operator is used to test for existence of rows in a subquery.
+-- Typically a subquery is passed in the EXISTS() function to check if any rows are returned with the subquery. 
+SELECT first_name, last_name FROM customer WHERE EXISTS (SELECT * FROM payment WHERE payment.customer_id = customer.customer_id AND amount > 11); 
+
+
+-- BASIC us of SELF JOIN
+-- A Self Join is a SubQuery in which a table is joined to itself. dvdrental
+-- Self-joins are useful for comparing values of row within the same table. 
+-- The sSelf Join can be viewed as a Join of two copies of the same table.
+-- The table is not actually copied, but SQL performs the command as though it were. 
+-- There is no special keyword for a Self Join, its simply standard JOIN syntax with the same table in both parts.
+-- However, when using a Self Join it is necessary to use an alias for the table, otherwise the table names would be ambigous.
+-- For example:
+	-- SELECT emp.name, report.name FROM employees AS emp JOIN employees AS report ON emp.emp_id = report.report_id;
+SELECT f1.title, f2.title, f1.length  FROM film AS f1 INNER JOIN film AS f2 ON f1.film_id != f2.film_id;
+
+
+
+-- ...................................................................................................................................................................
+-- CREATING DATA BASES AND TABLES
+
+
+-- DATA TYPES
+	-- Boolean => True or False
+	-- Character => char, varchar, and text
+	-- Numeric => Integer and Floating-point number
+	-- Temporal => Date, Time, TimeStamp and Interval
+	-- UUID => Universaly Unique Identifiers
+	-- Array => Stores an array of Strings, Numbers, etc. 
+	-- JSON
+	-- Hstore key-value pair
+	-- Special types such as network address and geometric data
+-- When creating a database and table, take your time to plan for long term storage. 
+-- Remember you can always remove historical information you've decided you aren't using, but you can't go  back
+-- in time to add information. 
+
+
+-- PRIMARY and FOREIGN KEYS
+-- A PRIMARY KEY is a column or a group of columns to identify a row uniquely in a table.
+-- Primary Keys are also important since they allow ypu to easily discern what columns should be used 
+-- for joining tables together. 
+-- A FOREIGN KEY is a field or group of fields in a table that uniquely identifies a row in another table. 
+-- A foreign key is defined in a table that references to the primary key of the other table.
+-- The table that contains the FOREIGN KEY is called referencing table or child table.
+-- The table to which the FOREIGN KEY referenes is called referenced table or parent table.
+-- A table can have multiple FOREIGN KEYS depending on its relationship with other tables.
+-- When creating tables and defining columns you can use constraints to define columns as being a primary key, or 
+-- attaching a foreign key relationship to another table.
+
+-- CONSTRAINTS
+-- Constraints are the rules enforced on data columns on table.
+-- These are used to prevent invalid data from being entered into the database.
+-- This ensures the accuracy and reliability of the data in the database.
+-- Constraints can be divided into two main categories.
+	-- Column Constraints: Constrains the data in a column to adhere to certain conditions. 
+	-- Table Constraints: Applied to the entire table rather than to an individual column.
+-- The most common constraints used: 
+	-- NOT NULL => Ensures that a column cannot have NULL value
+	-- UNIQUE => Ensures that all values in a column are different
+	-- PRIMARY KEY => Uniquely identifies each row/record in a database table
+	-- FOREIGN KEY => Constrains data based on columns in other tables
+	-- CHECK => Ensures that all values in a column satisfy certain conditions
+	-- EXCLUSION => Ensures that if any two rows are compared on the specified colum or expression using
+		-- the specified operator, not all of these comparisons will return TRUE.
+	-- CHECK (condition) => To check a condition when inserting or updating data
+	-- REFERENCES => to constrain the value stored in the column that must exist in a column in another table. 
+	-- UNIQUE (column_list) => Forces the values stored in the columns listed inside the parentheses to be unique
+	-- PRIMARY KEY (column_list) => Allows you to defines the primary key that consists of multiple columns. 
+	
 
 
 
